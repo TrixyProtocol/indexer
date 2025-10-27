@@ -1,0 +1,14 @@
+mode: "indexer"
+dbType: "postgres"
+dbHost: "localhost"
+dbPort: 5432
+dbUser: "your_username"
+dbPass: ""
+dbName: "trixy-flow-indexer"
+rpcEndpoint: "access.devnet.nodes.onflow.org:9000"
+network: "flow-testnet"
+networksFile: "networks.json"
+indexWorkers: 2
+forceResyncOnEveryStart: false
+migrateOnStart: true
+blockBatchSize: 50

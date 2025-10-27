@@ -1,0 +1,55 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    # Auto-fixable formatting linters
+    - gofmt          # Fixes code formatting
+    - gofumpt        # Stricter gofmt
+    - goimports      # Fixes imports ordering and removes unused
+    - gci            # Controls import order
+    - whitespace     # Fixes leading/trailing whitespace
+    - wsl            # Enforces empty lines
+
+    # Code quality (some auto-fixable)
+    - gosimple       # Simplifies code
+    - unused         # Removes unused code
+    - staticcheck    # Advanced static analysis
+    - errcheck       # Checks error handling
+    - ineffassign    # Detects ineffectual assignments
+    - misspell       # Fixes spelling mistakes
+    - unconvert      # Removes unnecessary type conversions
+
+    # Style
+    - revive         # Replacement for golint
+    - stylecheck     # Style consistency
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/evaafi
+
+  gci:
+    sections:
+      - standard                        # Standard library
+      - default                         # Everything else
+      - prefix(github.com/evaafi)      # Your project
+
+  gofumpt:
+    extra-rules: true
+
+  revive:
+    rules:
+      - name: var-naming
+        disabled: false
+      - name: indent-error-flow
+        disabled: false
+
+  whitespace:
+    multi-if: false
+    multi-func: false
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
