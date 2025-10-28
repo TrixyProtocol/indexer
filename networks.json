@@ -1,8 +1,8 @@
 {
   "flow-testnet": {
     "TrixyProtocol": {
-      "address": "0xe4a8713903104ee5",
-      "startBlock": 287066000
+      "address": "0x2e205f84c39a63ee",
+      "startBlock": 287297824
     }
   },
   "flow-mainnet": {

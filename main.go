@@ -215,12 +215,18 @@ func storeEvent(ctx context.Context, db *gorm.DB, flowClient *grpc.Client, event
 		endTimeUFix64 := fields["endTime"].(cadence.UFix64)
 		endTimeInt := int64(endTimeUFix64 / 100000000)
 
+		yieldProtocol := ""
+		if yieldProtoField := fields["yieldProtocol"]; yieldProtoField != nil {
+			yieldProtocol = string(yieldProtoField.(cadence.String))
+		}
+
 		return db.Create(&config.FlowMarketCreated{
 			MarketID:       uint64(fields["marketId"].(cadence.UInt64)),
 			Question:       string(fields["question"].(cadence.String)),
 			EndTime:        fmt.Sprintf("%d", endTimeInt),
 			Protocols:      options,
 			Options:        options,
+			YieldProtocol:  yieldProtocol,
 			Creator:        fields["creator"].(cadence.Address).String(),
 			BlockHeight:    blockHeight,
 			BlockTimestamp: block.Timestamp.Unix(),
@@ -229,10 +235,17 @@ func storeEvent(ctx context.Context, db *gorm.DB, flowClient *grpc.Client, event
 		}).Error
 
 	case "BetPlaced":
+		// Extract protocolIndex, default to 0 if not present
+		protocolIndex := uint32(0)
+		if protocolIndexField := fields["protocolIndex"]; protocolIndexField != nil {
+			protocolIndex = uint32(protocolIndexField.(cadence.UInt32))
+		}
+
 		return db.Create(&config.FlowBetPlaced{
 			MarketID:       uint64(fields["marketId"].(cadence.UInt64)),
 			User:           fields["user"].(cadence.Address).String(),
 			SelectedOption: string(fields["selectedOption"].(cadence.String)),
+			ProtocolIndex:  protocolIndex,
 			Amount:         fields["amount"].(cadence.UFix64).String(),
 			BlockHeight:    blockHeight,
 			BlockTimestamp: block.Timestamp.Unix(),
@@ -273,10 +286,33 @@ func storeEvent(ctx context.Context, db *gorm.DB, flowClient *grpc.Client, event
 		}).Error
 
 	case "YieldDeposited":
+		// Extract fields with fallbacks for different field names
+		userAddress := ""
+		if userField := fields["user"]; userField != nil {
+			userAddress = userField.(cadence.Address).String()
+		} else if userAddrField := fields["userAddress"]; userAddrField != nil {
+			userAddress = userAddrField.(cadence.Address).String()
+		}
+
+		protocolName := ""
+		if protocolField := fields["protocol"]; protocolField != nil {
+			protocolName = string(protocolField.(cadence.String))
+		} else if protoNameField := fields["protocolName"]; protoNameField != nil {
+			protocolName = string(protoNameField.(cadence.String))
+		}
+
+		positionID := ""
+		if posIDField := fields["positionId"]; posIDField != nil {
+			positionID = string(posIDField.(cadence.String))
+		} else if marketIDField := fields["marketId"]; marketIDField != nil {
+			positionID = fmt.Sprintf("%d", uint64(marketIDField.(cadence.UInt64)))
+		}
+
 		return db.Create(&config.FlowYieldDeposited{
-			MarketID:       uint64(fields["marketId"].(cadence.UInt64)),
-			Protocol:       string(fields["protocol"].(cadence.String)),
+			UserAddress:    userAddress,
+			ProtocolName:   protocolName,
 			Amount:         fields["amount"].(cadence.UFix64).String(),
+			PositionID:     positionID,
 			BlockHeight:    blockHeight,
 			BlockTimestamp: block.Timestamp.Unix(),
 			TransactionID:  event.TransactionID.String(),

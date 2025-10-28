@@ -34,6 +34,7 @@ type FlowBetPlaced struct {
 	MarketID       uint64    `gorm:"column:market_id;index" json:"marketId"`
 	User           string    `gorm:"column:user;index" json:"user"`
 	SelectedOption string    `gorm:"column:selected_option" json:"selectedOption"`
+	ProtocolIndex  uint32    `gorm:"column:protocol_index" json:"protocolIndex"`
 	Amount         string    `gorm:"column:amount" json:"amount"`
 	BlockHeight    uint64    `gorm:"column:block_height;index" json:"blockHeight"`
 	BlockTimestamp int64     `gorm:"column:block_timestamp;index" json:"blockTimestamp"`
@@ -80,9 +81,10 @@ func (FlowWinningsClaimed) TableName() string {
 
 type FlowYieldDeposited struct {
 	ID             uint   `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
-	MarketID       uint64 `gorm:"column:market_id;index" json:"marketId"`
-	Protocol       string `gorm:"column:protocol" json:"protocol"`
+	UserAddress    string `gorm:"column:user_address;index" json:"userAddress"`
+	ProtocolName   string `gorm:"column:protocol_name;index" json:"protocolName"`
 	Amount         string `gorm:"column:amount" json:"amount"`
+	PositionID     string `gorm:"column:position_id" json:"positionId"`
 	BlockHeight    uint64 `gorm:"column:block_height;index" json:"blockHeight"`
 	BlockTimestamp int64  `gorm:"column:block_timestamp;index" json:"blockTimestamp"`
 	TransactionID  string `gorm:"column:transaction_id;index" json:"transactionId"`
