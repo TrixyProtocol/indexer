@@ -53,7 +53,6 @@ func GetDBInstance() (*gorm.DB, error) {
 func GetTableName(db *gorm.DB, model interface{}) string {
 	stmt := &gorm.Statement{DB: db}
 	if err := stmt.Parse(model); err != nil {
-		// Handle the error, e.g., log it or return it
 		return ""
 	}
 

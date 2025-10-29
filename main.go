@@ -235,15 +235,18 @@ func storeEvent(ctx context.Context, db *gorm.DB, flowClient *grpc.Client, event
 		}).Error
 
 	case "BetPlaced":
-		// Extract protocolIndex, default to 0 if not present
+
 		protocolIndex := uint32(0)
 		if protocolIndexField := fields["protocolIndex"]; protocolIndexField != nil {
 			protocolIndex = uint32(protocolIndexField.(cadence.UInt32))
 		}
 
+		userAddr := fields["user"].(cadence.Address)
+		userHexAddr := fmt.Sprintf("0x%s", userAddr.Hex())
+
 		return db.Create(&config.FlowBetPlaced{
 			MarketID:       uint64(fields["marketId"].(cadence.UInt64)),
-			User:           fields["user"].(cadence.Address).String(),
+			User:           userHexAddr,
 			SelectedOption: string(fields["selectedOption"].(cadence.String)),
 			ProtocolIndex:  protocolIndex,
 			Amount:         fields["amount"].(cadence.UFix64).String(),
@@ -275,9 +278,13 @@ func storeEvent(ctx context.Context, db *gorm.DB, flowClient *grpc.Client, event
 		}).Error
 
 	case "WinningsClaimed":
+
+		userAddr := fields["user"].(cadence.Address)
+		userHexAddr := fmt.Sprintf("0x%s", userAddr.Hex())
+
 		return db.Create(&config.FlowWinningsClaimed{
 			MarketID:       uint64(fields["marketId"].(cadence.UInt64)),
-			User:           fields["user"].(cadence.Address).String(),
+			User:           userHexAddr,
 			Payout:         fields["payout"].(cadence.UFix64).String(),
 			BlockHeight:    blockHeight,
 			BlockTimestamp: block.Timestamp.Unix(),
@@ -286,7 +293,7 @@ func storeEvent(ctx context.Context, db *gorm.DB, flowClient *grpc.Client, event
 		}).Error
 
 	case "YieldDeposited":
-		// Extract fields with fallbacks for different field names
+
 		userAddress := ""
 		if userField := fields["user"]; userField != nil {
 			userAddress = userField.(cadence.Address).String()
